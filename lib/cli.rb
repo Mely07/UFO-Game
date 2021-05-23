@@ -2,6 +2,7 @@ class UFOGame::CLI
   @@incorrect_guesses = 0
   @@word #actual word
   @@codeword
+  @@incorrect_letters = []
 
   def call
     puts "Welcome to UFO: The Game!"
@@ -11,9 +12,10 @@ class UFOGame::CLI
     @@word = generate_word
     @@codeword = @@word.gsub(/\S/, '_')
     puts "Incorrect Guesses:"
-    puts @@incorrect_guesses
+    puts "None"
     puts @@codeword
     puts
+    puts @@word 
     get_input 
   end
 
@@ -134,23 +136,41 @@ x = ["                 .
 
   def search_for_letter(letter) #handle input
       if @@incorrect_guesses < 6
-        if !@@word.include?(letter)
-          @@incorrect_guesses += 1
-          puts @@codeword
-          puts "letter not found, please try again"
-          puts "Incorrect Guesses:"
-          puts @@incorrect_guesses
-          puts ufo[@@incorrect_guesses]
-          get_input
+        if @@codeword.include?('_')
+          if @@word.include?(letter)
+              puts "Correct! You're closer to cracking the codeword."
+              puts ufo[@@incorrect_guesses]
+              puts "Incorrect Guesses:"
+              print @@incorrect_letters
+              puts "Codeword:"
+              y = 0
+              while y < @@word.length
+                if @@word[y] == letter
+                  @@codeword[y] = letter
+                end
+                y += 1
+              end
+              puts @@codeword
+              get_input
+          else
+            @@incorrect_letters.push(letter)
+            @@incorrect_guesses += 1
+            puts "Incorrect! The tractor beam pulls the person in further."
+            puts ufo[@@incorrect_guesses]
+            puts "Incorrect Guesses:"
+            print @@incorrect_letters
+            puts "Codeword:"
+            puts @@codeword
+            get_input
+          end
         else
-          puts "letter found"
-          #handle letter found 
+          puts "Correct! You saved the person and earned a medal of honor!"
+          puts "Would you like to play again (Y/N)? N"
         end
-      else 
+      else  
         puts "exceeded # of tries"
       end 
     end
  
 end
-
 
