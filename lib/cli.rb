@@ -1,14 +1,21 @@
 class UFOGame::CLI
-  @@incorrect_guesses = 0
+  @@incorrect_guesses
   @@word #actual word
   @@codeword
   @@incorrect_letters = []
 
   def call
+    # Initialize variables
+    @@incorrect_guesses = 0
+    @@incorrect_letters = []
+
+    # Start the game
     puts "Welcome to UFO: The Game!"
     puts "Save us from alien abduction by guessing letters in the codeword."
     puts ufo[0]
     puts
+
+    # Call to generate random word
     @@word = generate_word
     @@codeword = @@word.gsub(/\S/, '_')
     puts "Incorrect Guesses:"
@@ -16,7 +23,89 @@ class UFOGame::CLI
     puts @@codeword
     puts
     puts @@word 
+
+    # Start handling user input
     get_input 
+
+    # Allow the user to continue playing after complete run
+    puts "Would you like to play again (Y/N)?"
+    yn = gets.chomp.upcase
+    handle_input(yn)
+  end
+
+  def generate_word
+    words = File.readlines('./lib/data/nouns.txt')
+    num = rand(words.length)
+    word = words[num].upcase.chomp
+  end
+
+  def get_input 
+    letter = gets.chomp.upcase
+    if @@incorrect_letters.include?(letter) || @@codeword.include?(letter)
+      puts" You can only guess that letter once, please try again."
+      get_input
+    else
+      search_for_letter(letter)
+    end
+  end
+
+  def search_for_letter(letter) 
+    # Check if user has guessed a correct letter
+    if @@word.include?(letter)
+      # Correct letter guessed, update the codeword with the letters found
+      y = 0
+      while y < @@word.length
+        if @@word[y] == letter
+          @@codeword[y] = letter
+        end
+        y += 1
+      end
+      
+      # Check if the user has guessed the whole word
+      if @@codeword.include?('_')
+        # There are still letters remaining, continue getting input
+        puts "Correct! You're closer to cracking the codeword."
+        puts ufo[@@incorrect_guesses]
+        puts "Incorrect Guesses:"
+        print @@incorrect_letters
+        puts
+        puts "Codeword:"
+        puts @@codeword
+        get_input
+      else
+        # User has guessed the word correctly
+        puts "Correct! You saved the person and earned a medal of honor!"
+        puts "The codeword is: #@@word."
+      end
+
+    else
+      # Incorrect letter guessed; update guess count and add to incorrect guesses array
+      @@incorrect_letters.push(letter)
+      @@incorrect_guesses += 1
+      if @@incorrect_guesses < 6
+        # Guesses still remaining
+        puts "Incorrect! The tractor beam pulls the person in further."
+        puts ufo[@@incorrect_guesses]
+        puts "Incorrect Guesses:"
+        print @@incorrect_letters
+        puts
+        puts "Codeword:"
+        puts @@codeword
+        get_input
+      else  
+        # No more guesses still remaining
+        puts "The aliens have taken over!"
+        puts ufo[6]
+      end 
+    end
+  end
+
+  def handle_input(yn)
+    if yn == "Y"
+      call
+    elsif  yn == "N"
+      puts "Goodbye!"
+    end
   end
 
   def ufo
@@ -121,56 +210,6 @@ x = ["                 .
          /               \\
 "]
   end
-
-  def generate_word
-    words = File.readlines('./lib/data/nouns.txt')
-    num = rand(words.length)
-    word = words[num].upcase
-  end
-
-  def get_input 
-    letter = gets.chomp
-    letter = letter.upcase
-    search_for_letter(letter)
-  end
-
-  def search_for_letter(letter) #handle input
-      if @@incorrect_guesses < 6
-        if @@codeword.include?('_')
-          if @@word.include?(letter)
-              puts "Correct! You're closer to cracking the codeword."
-              puts ufo[@@incorrect_guesses]
-              puts "Incorrect Guesses:"
-              print @@incorrect_letters
-              puts "Codeword:"
-              y = 0
-              while y < @@word.length
-                if @@word[y] == letter
-                  @@codeword[y] = letter
-                end
-                y += 1
-              end
-              puts @@codeword
-              get_input
-          else
-            @@incorrect_letters.push(letter)
-            @@incorrect_guesses += 1
-            puts "Incorrect! The tractor beam pulls the person in further."
-            puts ufo[@@incorrect_guesses]
-            puts "Incorrect Guesses:"
-            print @@incorrect_letters
-            puts "Codeword:"
-            puts @@codeword
-            get_input
-          end
-        else
-          puts "Correct! You saved the person and earned a medal of honor!"
-          puts "Would you like to play again (Y/N)? N"
-        end
-      else  
-        puts "exceeded # of tries"
-      end 
-    end
  
 end
 
