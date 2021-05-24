@@ -24,7 +24,6 @@ class UFOGame::CLI
     puts "Incorrect Guesses:"
     puts "None"
     puts @codeword
-    puts
 
     # Start handling user input
     get_input 
@@ -42,6 +41,8 @@ class UFOGame::CLI
   end
 
   def get_input 
+    puts
+    puts "Please enter your guess:"
     letter = gets.chomp.upcase
 
     if (letter.match(/^[A-Za-z]+$/)) && (letter.length == 1)
@@ -52,6 +53,7 @@ class UFOGame::CLI
         search_for_letter(letter)
       end
     else
+      puts "Please enter your guess: I'd like to solve the puzzle"
       puts "I cannot understand your input. Please guess a single letter."
       get_input
     end
@@ -75,7 +77,7 @@ class UFOGame::CLI
         puts "Correct! You're closer to cracking the codeword."
         puts ufo[@incorrect_guesses]
         puts "Incorrect Guesses:"
-        print @incorrect_letters
+        @incorrect_letters.each do |letter| print letter + ' ' end
         puts
         puts "Codeword:"
         puts @codeword
@@ -101,7 +103,7 @@ class UFOGame::CLI
         
         puts ufo[@incorrect_guesses]
         puts "Incorrect Guesses:"
-        print @incorrect_letters
+        @incorrect_letters.each do |letter| print letter + ' ' end
         puts
         puts "Codeword:"
         puts @codeword
