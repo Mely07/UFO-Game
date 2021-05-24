@@ -2,12 +2,15 @@ class UFOGame::CLI
   @@incorrect_guesses
   @@word #actual word
   @@codeword
-  @@incorrect_letters = []
+  @@incorrect_letters 
+  @@encouragements 
+
 
   def call
     # Initialize variables
     @@incorrect_guesses = 0
     @@incorrect_letters = []
+    @@encouragements = File.readlines('./lib/data/messages.txt')
 
     # Start the game
     puts "Welcome to UFO: The Game!"
@@ -41,11 +44,17 @@ class UFOGame::CLI
 
   def get_input 
     letter = gets.chomp.upcase
-    if @@incorrect_letters.include?(letter) || @@codeword.include?(letter)
-      puts" You can only guess that letter once, please try again."
-      get_input
+
+    if (letter.match(/^[A-Za-z]+$/)) && (letter.length == 1)
+      if @@incorrect_letters.include?(letter) || @@codeword.include?(letter)
+        puts" You can only guess that letter once, please try again."
+        get_input
+      else
+        search_for_letter(letter)
+      end
     else
-      search_for_letter(letter)
+      puts "I cannot understand your input. Please guess a single letter."
+      get_input
     end
   end
 
@@ -85,6 +94,12 @@ class UFOGame::CLI
       if @@incorrect_guesses < 6
         # Guesses still remaining
         puts "Incorrect! The tractor beam pulls the person in further."
+        
+        #encouragement 
+        num = rand(@@encouragements.length)
+        encouraging_message = @@encouragements[num]
+        puts encouraging_message
+        
         puts ufo[@@incorrect_guesses]
         puts "Incorrect Guesses:"
         print @@incorrect_letters
@@ -101,12 +116,18 @@ class UFOGame::CLI
   end
 
   def handle_input(yn)
-    if yn == "Y"
-      call
-    elsif  yn == "N"
-      puts "Goodbye!"
+    if yn.match(/^Y$/) || yn.match(/^N$/)
+      if yn == "Y"
+        call
+      elsif  yn == "N"
+        puts "Goodbye!"
+      end
+    else
+      puts "Please enter Y/N"
+      yn = gets.chomp.upcase
+      handle_input(yn)
     end
-  end
+end
 
   def ufo
 x = ["                 .
